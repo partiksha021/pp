@@ -1,0 +1,381 @@
+{% set customer = frappe.get_doc("Customer", doc.customer) %}
+
+<div class="box" style="height:fit-content;">
+    <div id="header-html" class="hidden-pdf">
+        {% if letter_head and not no_letterhead %}
+        <div class="letter-head">{{ letter_head }}</div>
+        {% endif %}
+    </div>
+
+    <div class="status" style="text-align: center;font-size:20px;height:30px;border-left: 1px solid #000 !important; border-top: 1px solid black; border-right: 1px solid #000 !important;background-color: #fff !important;width: 100%">
+        <b style="font-size:1.2rem;">Sales Order</b>
+    </div>
+
+    <div class="box2">
+        <div class="main2" style="width: 100%; max-width: 100%; border-top: 1px solid black; width: 100%;">
+            <div class="main_party" style="float:left;width: 55%; height:100%; pedding:5px;border-left: 1px solid #000 !important;border-right: 1px solid black;">
+                <div class="byte-add" style="float:left;width: 60%; padding-left:5px;">
+                    <b style="margin-left:5px;">Bill To:</b>
+                    <b style="margin-left:5px;">{{doc.customer_name}}</b>
+
+                    <br>
+                    {%- if doc.contact_person -%}
+                    <p style="margin-left:5px; display:inline;border-right:1px solid #000 !important ;"> Attn:</p>
+                    <p style="display:inline;">{{doc.contact_display or ''}}</p>
+                    <br>
+                    {%- endif -%}
+
+                    <p style="margin-left:10px;">{{doc.address_display or ''}}</p>
+
+                    {%if(customer.territory == "India")%}
+                    <b style="margin-left:5px;">GST No.: </b>
+                    <b style="margin-left:10px;">{{doc.billing_address_gstin or ''}}</b>                                
+                    {%endif%}
+                </div>
+            </div>
+            <div class="main_party" style="float:right;width: 45%; border-right: 1px solid #000 !important;pedding:5px;">
+                <div class="byte-add" style="float:left;width: 40%; pedding:5px;">
+                    <b style="margin-left:5px;">Sales Order No:</b>
+                    <br>
+                    <b style="margin-left:5px;">Sales Order Date:</b>
+                    <br>
+                    <b style="margin-left:5px;">Delivery Date:</b>
+                </div>
+                <div class="byte-add" style="float:left;width: 60%; pedding:5px;">
+                    <b style="margin-left:10px;">{{doc.name}}</b>
+                    <br>
+                    <b style="margin-left:10px;">{{doc.transaction_date}}</b>
+                    <br>
+                    <b style="margin-left:10px;">{{doc.delivery_date}}</b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="items_table" style="margin-top:2px;border-left: 1px solid #000 !important;border-right: 1px solid #000 !important;">
+        <table class="table" style="margin-left:1px; margin-right:1px; ">
+            <thead>
+                <tr>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; width:20px; text-align:center;"># </th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important;border-left:1px solid;width:230px; text-align:center;">Description</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:75px; text-align:center;">HSN/SAC</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:80px; text-align:center;">Qty</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px; text-align:center;">Rate</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid;border-right:1px solid; max-width:100px; text-align:center;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in doc.items %}
+                <tr>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; max-width:5px; text-align:center;">{{item.idx}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:120px; text-align:center;">{{item.description or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:75px; text-align:center;">{{item.gst_hsn_code or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; max-width:80px; text-align:center;">{{item.qty or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; max-width:100px; text-align:center;">{{item.rate or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; width:100px; text-align:center;">{{item.amount or ''}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="main6">
+        <table class="table1" style="width: 100%;border: 1px solid;float: right;border-top: none !important;  border-bottom:1px solid black;">
+            <thead>
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid;width:55%">Total Amount</td>
+                    <td style="text-align: right">{{doc.get_formatted("total", doc)}}</td>
+                      </tr>
+                {%if(doc.coupon_code and doc.coupon_code != "")%}
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid;width:55%">Coupon Code</td>
+                    <td style="text-align: right">{{doc.coupon_code}}</td>
+                </tr>
+                {%endif%}
+                
+                {%if(doc.additional_discount_percentage != 0)%}
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid;width:55%">Discount Percentage</td>
+                    <td style="text-align: right">{{doc.get_formatted("additional_discount_percentage",doc)}}%</td>
+                </tr>
+                {%endif%}
+            
+                {%- for row in doc.taxes -%}
+                {%- if not row.included_in_print_rate -%}
+                {% if row.tax_amount > 0 %}
+    
+                {% if 'CGST' in row.account_head -%}
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid">CGST</td>
+                    <!--{{ row.description }} -->
+                    <td style="text-align: end">{{row.get_formatted("tax_amount")}}</td>
+                </tr>
+                {%- endif -%}
+                {% if 'SGST' in row.account_head -%}
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid">SGST</td>
+                    <!--{{ row.description }} -->
+                    <td style="text-align: end">{{row.get_formatted("tax_amount")}}</td>
+                </tr>
+                {%- endif -%}
+                {% if 'IGST' in row.account_head -%}
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid">IGST</td>
+                    <!--{{ row.description }} -->
+                    <td style="text-align: end">{{row.get_formatted("tax_amount")}}
+                    </td>
+                </tr>
+                {% endif %}
+    
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+    
+                </tr>
+                {% for tax in doc.taxes %}
+                <tr style="border-bottom: 1px solid !important">
+                    <td style="border-right: 1px solid;width:55%">{{tax.description}}</td>
+                    <td style="text-align: right">{{tax.get_formatted("tax_amount", doc)}}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td style="border-right: 1px solid"><b>Grand Total</b></td>
+                    <td style="text-align: end"><b>{{doc.get_formatted("grand_total", doc)}}</b></td>
+                </tr>
+               
+            </thead>
+        </table>
+    </div>
+
+    <div class="main-b" style="border-right:1px solid;border-left:1px solid;text-align: right; width: 100%; border-top:1px solid;  border-bottom:1px solid black;padding-top:2px !important;">
+        <p style="font-size: x-small;margin-left: 1px;"><b>Total In Words : </b>{{doc.in_words}}</p>
+    </div>
+<!--{% if(customer.territory == "India")%}-->
+<!--    <div class="items_table" style="margin-top:20px">-->
+<!--        <table class="table" style="width: 100%; max-width: 100%;margin-bottom: 0px;margin-top: 0px;">-->
+<!--            <thead>-->
+<!--                <tr>-->
+<!--                    <th style="border-top: 1px solid #000 !important; border-left:1px solid; width:144px;">HSN/SAC</th>-->
+<!--                    <th style="border-top: 1px solid #000 !important; border-left:1px solid; width:168px;">Taxable Amt</th>-->
+<!--                    <th colspan="2"-->
+<!--                        style="text-align: center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+<!--                        <b>CGST </b>-->
+<!--                    </th>-->
+<!--                    <th colspan="2"-->
+<!--                        style="text-align: center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+<!--                        <b>SGST</b>-->
+<!--                    </th>-->
+<!--                    <th colspan="2"-->
+<!--                        style="text-align:center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+<!--                        <b>IGST</b>-->
+<!--                    </th>-->
+<!--                    <th-->
+<!--                        style="border-top: 1px solid #000 !important; border-left:1px solid; border-right:1px solid #000 !important; width:100px;">-->
+<!--                        Total Tax</th>-->
+<!--                    <th-->
+<!--                        style="border-top: 1px solid #000 !important; border-left:1px solid; border-right:1px solid #000 !important; width:100px;">-->
+<!--                        Total</th>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                <!--    <th-->
+                <!--        style="border-bottom: 1px solid #000 !important; border-left:1px solid; border-top:none; width:100px;">-->
+                <!--    </th>-->
+                <!--    <th-->
+                <!--        style="border-bottom: 1px solid #000 !important; border-left:1px solid; border-top:none; width:100px;">-->
+                <!--    </th>-->
+                <!--    <th-->
+                <!--        style="text-align: center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+                <!--        <b>Rate </b>-->
+                <!--    </th>-->
+                <!--    <th-->
+                <!--        style="text-align: center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+                <!--        <b>Amt </b>-->
+                <!--    </th>-->
+                <!--    <th-->
+                <!--        style="text-align: center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+                <!--        <b>Rate</b>-->
+                <!--    </th>-->
+                <!--    <th-->
+                <!--        style="text-align: center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+                <!--        <b>Amt</b>-->
+            <!--        </th>-->
+            <!--        <th style="text-align:center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+            <!--            <b>Rate</b>-->
+            <!--        </th>-->
+            <!--        <th-->
+            <!--            style="text-align:center; border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+            <!--            <b>Amt</b>-->
+            <!--        </th>-->
+            <!--        <th-->
+            <!--            style="border-bottom: 1px solid #000 !important; border-left:1px solid; border-right:1px solid #000 !important; border-top:none; width:100px;">-->
+            <!--        </th>-->
+            <!--        <th-->
+            <!--            style="border-bottom: 1px solid #000 !important; border-left:1px solid; border-right:1px solid #000 !important; border-top:none; width:100px;">-->
+            <!--        </th>-->
+
+            <!--    </tr>-->
+
+            <!--</thead>-->
+            <!--<tbody>-->
+            <!--    {% if items_dict %}-->
+            <!--    {% set total_qty = [] %}-->
+            <!--    {% set total_taxabale_amt = [] %}-->
+            <!--    {% set total_cgst_amt = [] %}-->
+            <!--    {% set total_sgst_amt = [] %}-->
+            <!--    {% set total_igst_amt = [] %}-->
+            <!--    {% set total_total_tax = [] %}-->
+            <!--    {% for key,value in items_dict.items() %}-->
+            <!--    {% for key2, value2 in value.items() %}-->
+            <!--    {% set total_amount = value2.get('taxable_amount') + value2.get('total_tax') %}-->
+            <!--    {% set tax_cgst_rate = value2.get('cgst_rate') / value2.get('loop') %}-->
+            <!--    {% set tax_sgst_rate = value2.get('sgst_rate') / value2.get('loop') %}-->
+            <!--    {% set tax_igst_rate = value2.get('igst_rate') / value2.get('loop') %}-->
+            <!--    <tr-->
+            <!--        <td-->
+            <!--            style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;"></td>-->
+            <!--        <td-->
+            <!--            style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+            <!--            {{key}}</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; width:100px;">-->
+        <!--                {{"{:,.2f}".format(value2.get('taxable_amount'))}}</td>-->
+
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{tax_cgst_rate}}%</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{"{:,.2f}".format(value2.get('cgst_amt'))}}</td>-->
+        <!--            <td-->
+        <!--                 style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{tax_sgst_rate}}%</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{"{:,.2f}".format(value2.get('sgst_amt'))}}</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{tax_igst_rate}}%</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{"{:,.2f}".format(value2.get('igst_amt'))}}</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-right:1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{"{:,.2f}".format(value2.get('total_tax'))}}</td>-->
+        <!--            <td-->
+        <!--                style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-right:1px solid #000 !important; border-left:1px solid; width:100px;">-->
+        <!--                {{total_amount}}</td>-->
+
+        <!--        </tr>-->
+        <!--        {% endfor %}-->
+        <!--        {% endfor %}-->
+        <!--    </tbody>-->
+        <!--    {% endif %}-->
+        <!--</table>-->
+<!--    </div>-->
+<!--    {% endif %}-->
+{% if( doc.payment_schedule and doc.payment_schedule[0].payment_term)%}
+<div class="Payment Schedule_table" style="margin-top:2px;border-left: 1px solid #000 !important;border-right: 1px solid #000 !important;">
+        <table class="table" style="margin-left:1px; margin-right:1px;">
+            <thead>
+                <tr>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; width:20px; text-align:center;"># </th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important;border-left:1px solid;width:340px; text-align:center;">Payment Term</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px; text-align:center;">Description</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px; text-align:center;">Invoice Portion</th>
+                    <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; border-right:1px solid;width:100px; text-align:center;">Payment Amount (INR)</th>
+<!--                     <th style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px; text-align:center;">Amount</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in doc.payment_schedule%}
+                <tr>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important;width:20px; text-align:center;">{{item.idx}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px; text-align:center;">{{item.payment_term or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid; width:100px; text-align:center;">{{item.description or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; width:100px; text-align:center;">{{item.invoice_portion or ''}}</td>
+                    <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; width:100px; text-align:center;">{{item.payment_amount or ''}}</td>
+<!--                     <td style="border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; border-left:1px solid #000 !important; width:100px; text-align:center;">{{item.amount or ''}}</td> -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        {%endif%}
+{%if doc.terms !='<div class="ql-editor read-mode"><p><br></p></div>'%}
+     <div class="status" style="text-align: center;margin-top:5px;font-size:15px;height:30px; background-color: #fff !important;width: 100%">
+        <b style="font-size:1.2rem;">Terms and Conditions Details</b>
+    </div>
+    <div>
+        <p style="margin-left:5px;">
+           {{doc.terms}}
+        </p>
+    </div>
+             {%endif%}
+
+ <div class="main10"
+        style="margin-top:30px; height:140px; width: 100%; max-width: 100%;">
+        <div class="main_party10" style="float:left;width: 60%;height:100%; pedding:5px;   border-top: 1px solid black; border-left: 1px solid #000 !important;  border-bottom: 1px solid #000 !important;  ">
+            <div class="byte-add10" style="float:left;width: 35%; font-size:12px; pedding:5px; ">
+
+                <div style="margin-bottom:10px"><b style="margin-left:5px;">Bank Details:</b></div>
+                <div style="margin-bottom:10px;">
+                    <b style="margin-left:5px; padding-bottom:15px !important;">Company Name:</b>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <b style="margin-left:5px; margin-bottom:15px;">RTGS / NEFT IFSC:</b>
+
+                </div>
+                <div style="margin-bottom:10px;">
+                    <b style="margin-left:5px; margin-bottom:15px">Bank Account No.:</b>
+
+                </div>
+                <div style="margin-bottom:10px;">
+                <b style="margin-left:5px;">Company's PAN:</b>
+                </div>
+                <!--<br>-->
+                <!--<b style="margin-left:5px;">GST No.:</b>-->
+
+            </div>
+            <div class="byte-add10" style="float:left;font-size:12px; pedding:5px;width:60%;">
+
+              <div style="margin-bottom:10px;">
+                  <b></b>
+                  <br>
+              </div>  
+              
+                <div style="margin-bottom:10px;">
+                <b style="margin-left:5px;">THINKCOMPBON INFOTECH PVT. LTD</b>
+                </div>
+                 <div style="margin-bottom:10px;">
+                <b style="margin-left:5px;">HDFC0001433</b>
+                </div>
+                 <div style="margin-bottom:10px;">
+                <b style="margin-left:5px;">50200071150311</b>
+                </div>
+                 <div style="margin-bottom:10px;">
+                <b style="margin-left:5px;">AAJCT0033A</b>
+                </div>
+               
+                <!--<br>-->
+                <!--<b style="margin-left:5px;">06AAJCT0033A1Z1</b>-->
+            </div>
+  <!--border-top: 1px solid black; border-left: 1px solid #000 !important;  border-right: 1px solid #000 !important;-->
+        </div>
+        <div class="main_party10"
+            style="float:left;width: 40%; font-size:12px; height:100%; pedding:5px; text-align:center; border-top: 1px solid black; border-left: 1px solid #000 !important; border-right: 1px solid #000 !important;   border-bottom: 1px solid #000 !important ">
+
+            <b>For THINKCOMPBON INFOTECH PVT. LTD.</b>
+            <br>
+
+            <img src="/files/sign.png" style="height:64px; width: 80px;margin:10px;">
+            <br>
+            <b>Authorised Signatory</b>
+
+        </div>
+
+    </div>
+    <div class="thanks" style="text-align: center; font-size: 18px; height: 25px; background-color: #fff !important; width: 100%;">
+        <b><i>Thank You for Your Business</i></b>
+    </div>
+</div>
